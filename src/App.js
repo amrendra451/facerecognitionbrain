@@ -4,7 +4,9 @@ import Navigation from "./Components/Navigation/Navigation";
 import Logo from "./Components/Logo/Logo";
 import ImageLinkForm from "./Components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
-import Rank from "./Components/Rank/Rank"
+import Rank from "./Components/Rank/Rank";
+import SignIn from "./Components/SignIn/SignIn";
+import Register from "./Components/Register/Register";
 import Particles from 'react-particles-js';
 import Clarifai from "clarifai";
 
@@ -41,7 +43,9 @@ class App extends React.Component {
     this.state = {
       input: '',
       imageUrl: '',
-      box: {}
+      box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   }
 
@@ -74,16 +78,33 @@ class App extends React.Component {
       .catch(err => console.log(err));
   }
 
+  onRouteChange = (route) => {
+    if (route === 'signout') {
+      this.setState({isSignedIn: false})
+    } else if (route === 'home') {
+      this.setState({isSignedIn: true})
+    }
+    this.setState({route: route});
+  }
+
   render() {
     const { imageUrl } = this.state;
     return (
       <div className="App">
         <Particles className="particles" params={particle} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm onInputChange = { this.onInputChange } onSubmit = { this.onSubmit } />
-        <FaceRecognition box={this.state.box} imageUrl = { imageUrl } />
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+        {
+          this.state.route === "home"
+            ? <div>
+                <Logo />
+                <Rank />
+                <ImageLinkForm onInputChange = { this.onInputChange } onSubmit = { this.onSubmit } />
+                <FaceRecognition onRouteChange={this.onRouteChange} box={this.state.box} imageUrl = { imageUrl } />
+              </div>
+            : (
+                this.state.route === 'signin' ? <SignIn onRouteChange={this.onRouteChange}/> : <Register onRouteChange={this.onRouteChange} />
+              )
+        }
       </div>
     );
   }
